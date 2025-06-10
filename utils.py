@@ -14,8 +14,8 @@ class DataProcessor:
     def data_treatment(self):
         df = pl.read_parquet('hf://datasets/ahmadreza13/human-vs-Ai-generated-dataset/data/train-*.parquet')
         ai_generated = df.filter(df['generated'] == 1)
-        self.lora_train = ai_generated[:15000]
-        self.lora_test = ai_generated[15000:20000]
+        self.lora_train = ai_generated[:50000]
+        self.lora_test = ai_generated[50000:70000]
         self.lora_train = pl.DataFrame(self.lora_train['data'])
         self.lora_test = pl.DataFrame(self.lora_test['data'])
         return self.lora_train, self.lora_test
