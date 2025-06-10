@@ -27,7 +27,7 @@ login(token=hf)
 wandb.login(key=wandb_key)
 
 
-tokenizer = AutoTokenizer.from_pretrained("meta-llama/Llama-3.2-1B")
+tokenizer = AutoTokenizer.from_pretrained("mistralai/Mistral-7B-v0.1")
 
 
 
@@ -39,15 +39,17 @@ pre_train, pre_test = processor.pretraining_data()
 
 
 
-# Define the quantization configuration
 bnb_config = BitsAndBytesConfig(
-    load_in_8bit=True # Specify 8-bit loading within the config
+    load_in_4bit=True,
+    bnb_4bit_use_double_quant=True,
+    bnb_4bit_quant_type="nf4",
+    bnb_4bit_compute_dtype="bfloat16"  # ou float16
 )
 
 model = AutoModelForCausalLM.from_pretrained(
-    "meta-llama/Llama-3.2-1B",
-    quantization_config=bnb_config, # Pass the BitsAndBytesConfig object
-    device_map='auto',
+    "mistralai/Mistral-7B-v0.1",
+    quantization_config=bnb_config,
+    device_map="auto"
 )
 
 model.config.pad_token_id = tokenizer.pad_token_id
@@ -57,16 +59,14 @@ config = LoraConfig(
     task_type = "CAUSAL_LM",
     r=8,
     lora_alpha=16,
-    target_modules = [
-    "q_proj", "k_proj", "v_proj", "o_proj",
-    "gate_proj", "up_proj", "down_proj"
-    ],
+    target_modules = ["q_proj", "k_proj", "v_proj", "o_proj"],
     lora_dropout=0.05,
     bias="none",
     modules_to_save=["causal"],
 )
 model = get_peft_model(model, config)
-model.print_trainable_parameters()
+
+print(model.print_trainable_parameters())
 
 os.environ["WANDB_PROJECT"] = "SYA-AI"  
 
