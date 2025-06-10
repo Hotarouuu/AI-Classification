@@ -19,6 +19,9 @@ parser.add_argument('--batch_size', type=int, default=16,
                     help='Batch size for training and evaluation')
 args = parser.parse_args()
 
+run_name = args.run_name
+
+
 load_dotenv()
 
 wandb_key= os.getenv("WANDB")
@@ -46,6 +49,8 @@ data_collator = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=False)
 processor = DataProcessor(tokenizer)
 pre_train, pre_test = processor.pretraining_data()
 
+total_tokens = sum(len(x) for x in pre_train["input_ids"])
+print(f"Total de tokens: {total_tokens}")
 
 
 bnb_config = BitsAndBytesConfig(
@@ -81,7 +86,7 @@ os.environ["WANDB_PROJECT"] = "SYA-AI"
 
 
 training_args = TrainingArguments(
-    output_dir=args.run_name,
+    output_dir=run_name,
     learning_rate=1e-4,
     per_device_train_batch_size=args.batch_size,
     per_device_eval_batch_size=args.batch_size,
