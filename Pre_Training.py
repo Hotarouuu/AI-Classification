@@ -9,6 +9,15 @@ import os
 import polars as pl
 import bitsandbytes as bnb
 from dotenv import load_dotenv
+import argparse
+
+# Add argument parser
+parser = argparse.ArgumentParser(description='Pre-training script with configurable parameters')
+parser.add_argument('--run_name', type=str, default='LoRA-PreTraining',
+                    help='Name of the run for output directory and wandb')
+parser.add_argument('--batch_size', type=int, default=16,
+                    help='Batch size for training and evaluation')
+args = parser.parse_args()
 
 load_dotenv()
 
@@ -72,10 +81,10 @@ os.environ["WANDB_PROJECT"] = "SYA-AI"
 
 
 training_args = TrainingArguments(
-    output_dir="LoRA-PreTraining_2",
+    output_dir=args.run_name,
     learning_rate=1e-4,
-    per_device_train_batch_size=16,
-    per_device_eval_batch_size=16,
+    per_device_train_batch_size=args.batch_size,
+    per_device_eval_batch_size=args.batch_size,
     num_train_epochs=5,
     weight_decay=0.05,
     save_strategy="steps",
