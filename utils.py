@@ -22,7 +22,7 @@ class DataProcessor:
 
     def preprocess_function(self, examples):
         # Tokenize the texts. The data collator will handle padding and labels.
-        tokenized_inputs = self.tokenizer(examples['data'], truncation=True, padding=True)
+        tokenized_inputs = self.tokenizer(examples['data'], truncation=True, padding=True, return_tensors="pt")
         tokenized_inputs['labels'] = tokenized_inputs['input_ids'].copy()
         return tokenized_inputs
 
